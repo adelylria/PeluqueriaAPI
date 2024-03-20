@@ -1,16 +1,23 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/adelylria/PeluqueriaAPI/routes"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/login", loginHandler).Methods("POST")
-}
+	routes.RegisterRoutes(r)
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/", r)
+	port := os.Getenv("PORT")
+	done := make(chan bool)
+	go http.ListenAndServe(port, nil)
+	log.Printf("Listening to port %v", port)
 
+	<-done
 }
