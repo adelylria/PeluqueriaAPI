@@ -15,9 +15,7 @@ func main() {
 
 	http.Handle("/", r)
 	port := os.Getenv("PORT")
-	done := make(chan bool)
-	go http.ListenAndServe(port, nil)
-	log.Printf("Listening to port %v", port)
+	log.Printf("Listening to port :8080")
+	http.ListenAndServe(port, nil)
 
-	<-done
 }
