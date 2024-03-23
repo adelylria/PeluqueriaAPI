@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7; /* Color de fondo de la página */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center; /* Centra horizontalmente en el cuerpo */
+    align-items: center; /* Centra verticalmente en el cuerpo */
+    height: 100vh; /* Usa toda la altura del cuerpo */
+}
+
+.container {
+    display: flex;
+    width: 80%; /* Ancho de la tabla */
+    background-color: #fff; /* Color de fondo de la tabla */
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra de la tabla */
+    padding: 20px;
+    box-sizing: border-box; /* Incluye el padding en el tamaño total de la tabla */
+    overflow-x: auto; /* Agrega scroll horizontal si es necesario */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+}
+
+h2 {
+    text-align: center; /* Centra el título */
+    margin-bottom: 20px; /* Espacio adicional debajo del título */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
