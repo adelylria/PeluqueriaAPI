@@ -7,10 +7,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// RegisterAPIRoutes registra las rutas para la API
 func RegisterAPIRoutes(r *mux.Router) {
-	r.PathPrefix("/api/").Handler(http.StripPrefix("/api", http.FileServer(http.Dir("./web/api/"))))
 	r.HandleFunc("/api/login", handlers.LoginHandler).Methods("POST")
-	//r.HandleFunc("/api/admin", handlers).Methods("POST")
+	r.HandleFunc("/api/register", handlers.RegisterHandler).Methods("POST")
+	r.PathPrefix("/api/").Handler(http.StripPrefix("/api", http.FileServer(http.Dir("./web/api/"))))
 }
 
 // RegisterWebRoutes registra las rutas para las páginas web estáticas
