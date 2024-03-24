@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "chrome",
+            "name": "http://www.peluqueria.ps:8080/login",
+            "request": "launch",
+            "url": "http://www.peluqueria.ps:8080/login"
+        }
+    ]
+}
