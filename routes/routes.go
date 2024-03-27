@@ -11,6 +11,7 @@ import (
 func RegisterAPIRoutes(r *mux.Router) {
 	r.HandleFunc("/api/login", handlers.LoginHandler).Methods("POST")
 	r.HandleFunc("/api/register", handlers.RegisterHandler).Methods("POST")
+	r.HandleFunc("/api/user", handlers.GetUserByIdHandler).Methods("GET")
 	r.PathPrefix("/api/").Handler(http.StripPrefix("/api", http.FileServer(http.Dir("./web/api/"))))
 }
 

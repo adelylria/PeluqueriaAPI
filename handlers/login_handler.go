@@ -1,17 +1,16 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/adelylria/PeluqueriaAPI/database"
+	"github.com/adelylria/PeluqueriaAPI/apperrors"
+	"github.com/adelylria/PeluqueriaAPI/database/repository"
 	"github.com/adelylria/PeluqueriaAPI/models"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type ErrorResponse struct {
@@ -24,6 +23,8 @@ type LoginResponse struct {
 	User    models.LoginResponseUser `json:"user"`
 }
 
+// LoginHandler maneja la solicitud de inicio de sesión
+// LoginHandler maneja la solicitud de inicio de sesión
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Verifica si el método es POST
 	if r.Method != http.MethodPost {
@@ -34,40 +35,32 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Configura el encabezado Content-Type para aceptar JSON
 	w.Header().Set("Content-Type", "application/json")
 
+	// Decodifica el cuerpo JSON de la solicitud en una estructura de usuario
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Formato JSON inválido", http.StatusBadRequest)
 		return
 	}
 
-	// Obtiene la instancia de la base de datos
-	db := database.GetDB()
-
-	// Realiza una consulta para obtener el hash de contraseña y el ID del usuario
-	var hashedPassword, email string
-	var userID int
-	err := db.QueryRow("SELECT idusuario, email, password FROM usuario WHERE username = ?", user.Username).Scan(&userID, &email, &hashedPassword)
+	// Busca el usuario en la base de datos por nombre de usuario y contraseña
+	userData, err := repository.GetUserByUsernameAndPassword(user.Username, user.Password)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		switch err {
+		case apperrors.ErrUserNotFound:
 			http.Error(w, "Credenciales incorrectas", http.StatusUnauthorized)
 			log.Println("Usuario no encontrado en la base de datos")
-			return
+		case apperrors.ErrInvalidCredentials:
+			http.Error(w, "Credenciales incorrectas", http.StatusUnauthorized)
+			log.Printf("Credenciales incorrectas para el usuario: %s", user.Username)
+		default:
+			http.Error(w, "Error al consultar la base de datos", http.StatusInternalServerError)
+			log.Println("Error al consultar la base de datos:", err)
 		}
-		http.Error(w, "Error al consultar la base de datos", http.StatusInternalServerError)
-		log.Println("Error al consultar la base de datos:", err)
-		return
-	}
-
-	// Compara la contraseña ingresada con el hash almacenado en la base de datos
-	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(user.Password)); err != nil {
-		http.Error(w, "Credenciales incorrectas", http.StatusUnauthorized)
-		log.Printf("Cliente: %s | Método: %s", r.RemoteAddr, r.Method)
-		log.Printf("Credenciales incorrectas para el usuario: %s", user.Username)
 		return
 	}
 
 	// Genera el token
-	token, err := generateToken(userID, user.Username)
+	token, err := generateToken(userData.ID, user.Username)
 	if err != nil {
 		http.Error(w, "Error al generar el token", http.StatusInternalServerError)
 		log.Println("Error al generar el token:", err)
@@ -79,8 +72,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Inicio de sesión exitoso",
 		Token:   token,
 		User: models.LoginResponseUser{
-			ID:    userID,
-			Email: email,
+			ID:    userData.ID,
+			Email: userData.Email,
 		},
 	}
 
@@ -96,13 +89,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Inicio de sesión exitoso. Usuario: %s", user.Username)
 }
 
+// generateToken genera un token de autenticación JWT para un usuario dado.
+// Recibe el ID de usuario y el nombre de usuario como parámetros y devuelve el token generado y un error, si lo hay.
 func generateToken(userID int, username string) (string, error) {
-	// obtenemos la llave secreta
+	// Obtenemos la llave secreta
 	s_key := os.Getenv("SECRET_KEY")
 	// Clave secreta para firmar el token
 	secretKey := []byte(s_key)
 
-	// Duración del token (en este caso, 6 horas)
+	// Duración del token (En horas, se puede modificar)
 	expirationTime := time.Now().Add(6 * time.Hour)
 	// Crea las afirmaciones (claims) del token
 	claims := jwt.MapClaims{
