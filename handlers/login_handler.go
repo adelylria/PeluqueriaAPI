@@ -13,16 +13,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type ErrorResponse struct {
-	Message string `json:"message"`
-}
-
-type LoginResponse struct {
-	Message string                   `json:"message"`
-	Token   string                   `json:"token"`
-	User    models.LoginResponseUser `json:"user"`
-}
-
 // LoginHandler maneja la solicitud de inicio de sesión
 // LoginHandler maneja la solicitud de inicio de sesión
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +58,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Crea una estructura de respuesta
-	loginResponse := LoginResponse{
+	loginResponse := models.LoginResponse{
 		Message: "Inicio de sesión exitoso",
 		Token:   token,
 		User: models.LoginResponseUser{

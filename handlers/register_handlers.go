@@ -19,7 +19,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(ErrorResponse{Message: "Formato JSON inválido"})
+		json.NewEncoder(w).Encode(models.ErrorResponse{Message: "Formato JSON inválido"})
 		return
 	}
 
@@ -27,7 +27,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(ErrorResponse{Message: "Error al encriptar la contraseña"})
+		json.NewEncoder(w).Encode(models.ErrorResponse{Message: "Error al encriptar la contraseña"})
 		log.Println("Error al encriptar la contraseña:", err)
 		return
 	}
@@ -47,7 +47,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = db.Exec("INSERT INTO usuario (username, password, email, admin) VALUES (?, ?, ?, ?)", user.Username, hashedPassword, user.Email, isAdmin)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(ErrorResponse{Message: "Error al registrar el usuario"})
+		json.NewEncoder(w).Encode(models.ErrorResponse{Message: "Error al registrar el usuario"})
 		log.Println("Error al registrar el usuario en la base de datos:", err)
 		return
 	}

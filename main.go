@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/adelylria/PeluqueriaAPI/database"
 	"github.com/adelylria/PeluqueriaAPI/routes"
@@ -19,11 +20,17 @@ func main() {
 
 	routes.RegisterAPIRoutes(r)
 	routes.RegisterWebRoutes(r)
-
-	http.Handle("/", r)
-
 	port := os.Getenv("PORT")
-	log.Print("Listening to port :8080")
-	http.ListenAndServe(port, nil)
 
+	// Server configuration
+	srv := &http.Server{
+		Handler:      r,
+		Addr:         port,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+	//http.Handle("/", r)
+
+	log.Print("Listening to port :8080")
+	srv.ListenAndServe()
 }
