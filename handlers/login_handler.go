@@ -37,7 +37,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch err {
 		case apperrors.ErrUserNotFound:
-			http.Error(w, "Credenciales incorrectas", http.StatusUnauthorized)
+			http.Error(w, "Usuario no encontrado", http.StatusUnauthorized)
 			log.Println("Usuario no encontrado en la base de datos")
 		case apperrors.ErrInvalidCredentials:
 			http.Error(w, "Credenciales incorrectas", http.StatusUnauthorized)
